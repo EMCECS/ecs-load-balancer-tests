@@ -15,17 +15,21 @@ import com.amazonaws.services.s3.S3ClientOptions;
 @EnableS3Stores(basePackages="com.emc.ecs.support")
 public class ECSConfig {
 
-//    @Value("${ecs.url:#{environment.ECS_URL}}")
-    private String url = "http://some-endpoint";
+    static {
+        System.setProperty("com.amazonaws.sdk.disableCertChecking", "true");
+    }
 
-//    @Value("${ecs.accessKey:#{environment.ECS_ACCESS_KEY}}")
-    private String accessKey = "something";
+    @Value("${ecs.url:#{environment.ECS_URL}}")
+    private String url;
 
-//    @Value("${ecs.secretKey:#{environment.ECS_SECRET_KEY}}")
-    private String secretKey = "else";
+    @Value("${ecs.accessKey:#{environment.ECS_ACCESS_KEY}}")
+    private String accessKey;
 
-//    @Value("${ecs.bucket:#{environment.ECS_BUCKET}}")
-    private String bucket = "some-bucket";
+    @Value("${ecs.secretKey:#{environment.ECS_SECRET_KEY}}")
+    private String secretKey;
+
+    @Value("${ecs.bucket:#{environment.AWS_BUCKET}}")
+    private String bucket;
 
     @Bean
     public String bucket() {
