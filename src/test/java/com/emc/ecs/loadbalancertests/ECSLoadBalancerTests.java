@@ -34,30 +34,6 @@ public class ECSLoadBalancerTests {
 
     {
         Describe("ECSLoadBalancer", () -> {
-//            BeforeEach(() -> {
-//                javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
-//                    new javax.net.ssl.HostnameVerifier(){
-//                        public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
-//                            return true;
-//                        }
-//                    });
-//
-//                CertificateFactory certFactory;
-//                InputStream certInputStream = this.getClass().getResourceAsStream("/ecs_cert.pem");
-//
-//                certFactory = CertificateFactory.getInstance("X.509");
-//                Certificate caCert = certFactory.generateCertificate(certInputStream);
-//                KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-//                keyStore.load(null);
-//                keyStore.setCertificateEntry("caCert", caCert);
-//
-//                TrustManagerFactory trustMgrFactory = TrustManagerFactory
-//                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-//                trustMgrFactory.init(keyStore);
-//
-//                SSLContext sslContext = SSLContext.getInstance("TLS");
-//                sslContext.init(null, trustMgrFactory.getTrustManagers(), null);
-//            });
             Context("given an uploaded object", () -> {
                 BeforeEach(() -> {
                     // use store to upload an object
@@ -89,15 +65,17 @@ public class ECSLoadBalancerTests {
                         BeforeEach(() -> {
                             // perform a BOSH restart on one of the nodes
 
-                            Process process = new ProcessBuilder("bosh","-d", cfDeployment, "restart", instanceId).start();
-                            InputStream is = process.getInputStream();
-                            InputStreamReader isr = new InputStreamReader(is);
-                            BufferedReader br = new BufferedReader(isr);
-                            String line;
+//                            Process process = new ProcessBuilder("bosh","-d", cfDeployment, "restart", instanceId).start();
+//                            InputStream is = process.getInputStream();
+//                            InputStreamReader isr = new InputStreamReader(is);
+//                            BufferedReader br = new BufferedReader(isr);
+//                            String line;
+//
+//                            while ((line = br.readLine()) != null) {
+//                                System.out.println(line);
+//                            }
 
-                            while ((line = br.readLine()) != null) {
-                                System.out.println(line);
-                            }
+                            Thread.sleep(20000);
 
                         });
                         It("should be remain available throughout", () -> {
