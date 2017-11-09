@@ -31,9 +31,25 @@ public class ECSConfig {
     @Value("${ecs.bucket:#{environment.AWS_BUCKET}}")
     private String bucket;
 
+    @Value("${cf.deployment:#{environment.CF_DEPLOYMENT}}")
+    private String cfDeployment;
+
+    @Value("${ecs.server.instanceId:#{environment.ECS_SERVER_INSTANCE_ID}}")
+    private String instanceId;
+
     @Bean
     public String bucket() {
         return bucket;
+    }
+
+    @Bean
+    public String cfDeployment() {
+        return cfDeployment;
+    }
+
+    @Bean
+    public String instanceId() {
+        return instanceId;
     }
 
     @Bean
