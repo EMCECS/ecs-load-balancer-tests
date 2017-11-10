@@ -1,11 +1,16 @@
 package com.emc.ecs.loadbalancertests;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.emc.ecs.support.CheckAvailabiltiyThread;
 import com.emc.ecs.support.URIResourceStore;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
@@ -26,14 +31,25 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @ContextConfiguration(classes=ECSConfig.class)
 public class ECSLoadBalancerTest {
 
+    private static final Logger logger =LoggerFactory.getLogger(ECSLoadBalancerTest.class);
+
+    @Autowired private AmazonS3Client s3;
     @Autowired private URIResourceStore store;
-    @Autowired private String cfDeployment;
+    @Autowired private String deployment;
     @Autowired private String instanceId;
 
     private CheckAvailabiltiyThread checker;
 
+    private String bucketName = "lbats-bucket";
+
     {
         Describe("ECSLoadBalancer", () -> {
+            Context("given a bucket", () -> {
+                BeforeEach(() -> {
+                    s3.createBucket(new CreateBucketRequest(
+                            "lbats-bucket"));
+                });
+            });
             Context("given an uploaded object", () -> {
                 BeforeEach(() -> {
                     // use store to upload an object
@@ -65,7 +81,7 @@ public class ECSLoadBalancerTest {
                         BeforeEach(() -> {
                             // perform a BOSH restart on one of the nodes
 
-//                            Process process = new ProcessBuilder("bosh","-d", cfDeployment, "restart", instanceId).start();
+//                            Process process = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId).start();
 //                            InputStream is = process.getInputStream();
 //                            InputStreamReader isr = new InputStreamReader(is);
 //                            BufferedReader br = new BufferedReader(isr);

@@ -28,11 +28,11 @@ public class ECSConfig {
     @Value("${ecs.secretKey:#{environment.ECS_SECRET_KEY}}")
     private String secretKey;
 
-    @Value("${ecs.bucket:#{environment.AWS_BUCKET}}")
+    @Value("${ecs.bucket:#{environment.ECS_BUCKET}}")
     private String bucket;
 
-    @Value("${cf.deployment:#{environment.CF_DEPLOYMENT}}")
-    private String cfDeployment;
+    @Value("${deployment:#{environment.DEPLOYMENT}}")
+    private String deployment;
 
     @Value("${ecs.server.instanceId:#{environment.ECS_SERVER_INSTANCE_ID}}")
     private String instanceId;
@@ -43,8 +43,8 @@ public class ECSConfig {
     }
 
     @Bean
-    public String cfDeployment() {
-        return cfDeployment;
+    public String deployment() {
+        return deployment;
     }
 
     @Bean
