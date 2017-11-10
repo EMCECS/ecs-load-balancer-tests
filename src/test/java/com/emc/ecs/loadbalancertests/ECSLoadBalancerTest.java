@@ -24,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jSpringRunner.class)
 @ContextConfiguration(classes=ECSConfig.class)
-public class ECSLoadBalancerTests {
+public class ECSLoadBalancerTest {
 
     @Autowired private URIResourceStore store;
     @Autowired private String cfDeployment;
