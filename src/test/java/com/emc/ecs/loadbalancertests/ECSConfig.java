@@ -27,7 +27,7 @@ public class ECSConfig {
     @Value("${ecs.secretKey:#{environment.ECS_SECRET_KEY}}")
     private String secretKey;
 
-    @Value("${ecs.bucket:#{environment.ECS_BUCKET}}")
+    @Value("${ecs.bucket:#{environment.AWS_BUCKET}}")
     private String bucket;
 
     @Value("${deployment:#{environment.DEPLOYMENT}}")
