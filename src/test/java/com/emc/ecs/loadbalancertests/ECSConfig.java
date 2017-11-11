@@ -18,7 +18,7 @@ public class ECSConfig {
         System.setProperty("com.amazonaws.sdk.disableCertChecking", "true");
     }
 
-    @Value("${ecs.url:#{environment.ECS_URL}}")
+    @Value("${ecs.url:#{environment.ECS_S3_URL}}")
     private String url;
 
     @Value("${ecs.accessKey:#{environment.ECS_ACCESS_KEY_ID}}")
