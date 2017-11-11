@@ -52,30 +52,9 @@ public class ECSLoadBalancerTest {
                     assertThat(bucket, is(not(nullValue())));
                 });
                 AfterEach(() -> {
-                    logger.info("Deleting bucket: " + bucketName);
-
                     try {
-                        logger.info("Removing objects from bucket");
-                        ObjectListing object_listing = s3.listObjects(bucketName);
-                        while (true) {
-                            for (Iterator<?> iterator =
-                                 object_listing.getObjectSummaries().iterator();
-                                 iterator.hasNext();) {
-                                S3ObjectSummary summary = (S3ObjectSummary)iterator.next();
-                                s3.deleteObject(bucketName, summary.getKey());
-                            }
-
-                            // more object_listing to retrieve?
-                            if (object_listing.isTruncated()) {
-                                object_listing = s3.listNextBatchOfObjects(object_listing);
-                            } else {
-                                break;
-                            }
-                        }
-
-                        logger.info("Bucket ready to delete!");
+                        logger.info("Deleting bucket " + bucketName);
                         s3.deleteBucket(bucketName);
-                        logger.info("Deleted bucket " + bucketName);
                     } catch (AmazonServiceException e) {
                         logger.error("Error deleting bucket " + bucketName, e.getErrorMessage(), e);
                     }
@@ -96,10 +75,14 @@ public class ECSLoadBalancerTest {
                             IOUtils.closeQuietly(is);
                         }
                     });
-//                AfterEach(() -> {
-//                    DeletableResource r = (DeletableResource)store.getResource("test-object");
-//                    r.delete();
-//                });
+                    AfterEach(() -> {
+                        try {
+                            logger.info("Deleting test object");
+                            s3.deleteObject(bucketName, "test-object");
+                        } catch (AmazonServiceException e) {
+                            logger.error("Error deleting test object", e);
+                        }
+                    });
                     Context("when we watch that object for availability", () -> {
                         BeforeEach(() -> {
                             // kick off a thread that gets the uploaded object over and over
