@@ -2,7 +2,6 @@ package com.emc.ecs.loadbalancertests;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
 import com.emc.ecs.support.CheckAvailabiltiyThread;
 import com.emc.ecs.support.URIResourceStore;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
@@ -16,12 +15,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.*;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -49,37 +44,36 @@ public class ECSLoadBalancerTest {
                     s3.createBucket(new CreateBucketRequest(
                             "lbats-bucket"));
                 });
-            });
-            Context("given an uploaded object", () -> {
-                BeforeEach(() -> {
-                    // use store to upload an object
-                    WritableResource r = (WritableResource)store.getResource("test-object");
-                    InputStream is = this.getClass().getResourceAsStream("/test-object");
-                    OutputStream os = null;
-                    try {
-                        os = r.getOutputStream();
-                        IOUtils.copy(is, os);
-                    } finally {
-                        IOUtils.closeQuietly(os);
-                        IOUtils.closeQuietly(is);
-                    }
-                });
+                Context("given an uploaded object", () -> {
+                    BeforeEach(() -> {
+                        // use store to upload an object
+                        WritableResource r = (WritableResource)store.getResource("test-object");
+                        InputStream is = this.getClass().getResourceAsStream("/test-object");
+                        OutputStream os = null;
+                        try {
+                            os = r.getOutputStream();
+                            IOUtils.copy(is, os);
+                        } finally {
+                            IOUtils.closeQuietly(os);
+                            IOUtils.closeQuietly(is);
+                        }
+                    });
 //                AfterEach(() -> {
 //                    DeletableResource r = (DeletableResource)store.getResource("test-object");
 //                    r.delete();
 //                });
-                Context("when we watch that object for availability", () -> {
-                    BeforeEach(() -> {
-                        // kick off a thread that gets the uploaded object over and over
-                        checker = new CheckAvailabiltiyThread(store, "test-object");
-                        checker.start();
-                    });
-                    AfterEach(()-> {
-                        checker.stopSignal();
-                    });
-                    Context("when we bosh restart on of the ECS node VMs", () -> {
+                    Context("when we watch that object for availability", () -> {
                         BeforeEach(() -> {
-                            // perform a BOSH restart on one of the nodes
+                            // kick off a thread that gets the uploaded object over and over
+                            checker = new CheckAvailabiltiyThread(store, "test-object");
+                            checker.start();
+                        });
+                        AfterEach(()-> {
+                            checker.stopSignal();
+                        });
+                        Context("when we bosh restart on of the ECS node VMs", () -> {
+                            BeforeEach(() -> {
+                                // perform a BOSH restart on one of the nodes
 
 //                            Process process = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId).start();
 //                            InputStream is = process.getInputStream();
@@ -91,14 +85,15 @@ public class ECSLoadBalancerTest {
 //                                System.out.println(line);
 //                            }
 
-                            Thread.sleep(20000);
+                                Thread.sleep(20000);
 
-                        });
-                        It("should be remain available throughout", () -> {
-                            Resource r = store.getResource("test-object");
-                            assertThat(r.exists(), is(true));
-                            assertThat(IOUtils.contentEquals(r.getInputStream(), this.getClass().getResourceAsStream("/test-object")), is(true));
-                            assertThat(checker.isAvailable(), is(true));
+                            });
+                            It("should be remain available throughout", () -> {
+                                Resource r = store.getResource("test-object");
+                                assertThat(r.exists(), is(true));
+                                assertThat(IOUtils.contentEquals(r.getInputStream(), this.getClass().getResourceAsStream("/test-object")), is(true));
+                                assertThat(checker.isAvailable(), is(true));
+                            });
                         });
                     });
                 });
