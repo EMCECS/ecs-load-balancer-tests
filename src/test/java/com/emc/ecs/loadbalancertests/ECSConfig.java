@@ -21,7 +21,7 @@ public class ECSConfig {
     @Value("${ecs.url:#{environment.ECS_URL}}")
     private String url;
 
-    @Value("${ecs.accessKey:#{environment.ECS_ACCESS_KEY}}")
+    @Value("${ecs.accessKey:#{environment.ECS_ACCESS_KEY_ID}}")
     private String accessKey;
 
     @Value("${ecs.secretKey:#{environment.ECS_SECRET_KEY}}")
