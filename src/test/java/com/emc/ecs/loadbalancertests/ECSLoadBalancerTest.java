@@ -10,6 +10,7 @@ import com.emc.ecs.support.CheckAvailabilityChecker;
 import com.emc.ecs.support.URIResourceStore;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,9 +25,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jSpringRunner.class)
@@ -42,18 +41,18 @@ public class ECSLoadBalancerTest {
 
     private CheckAvailabilityChecker checker;
 
-    private String bucketName = "lbats-bucket";
+    private String bucketName = "lbats-bucket-" + DateTime.now().getMillis();
 
     {
         Describe("ECSLoadBalancer", () -> {
             Context("given a bucket", () -> {
                 BeforeEach(() -> {
-                    logger.info("Creating bucket" + bucketName);
+                    logger.info("Creating bucket " + bucketName);
                     Bucket bucket = s3.createBucket(new CreateBucketRequest(bucketName));
                     assertThat(bucket, is(not(nullValue())));
                 });
                 AfterEach(() -> {
-                    logger.info("Deleting S3 bucket: " + bucketName);
+                    logger.info("Deleting bucket: " + bucketName);
 
                     try {
                         logger.info("Removing objects from bucket");
@@ -72,15 +71,15 @@ public class ECSLoadBalancerTest {
                             } else {
                                 break;
                             }
-                        };
+                        }
 
-                        logger.info("OK, bucket ready to delete!");
+                        logger.info("Bucket ready to delete!");
                         s3.deleteBucket(bucketName);
+                        logger.info("Deleted bucket " + bucketName);
                     } catch (AmazonServiceException e) {
                         logger.error("Error deleting bucket " + bucketName, e.getErrorMessage(), e);
                     }
-                    logger.info("Deleted bucket " + bucketName);
-                    });
+                });
                 Context("given an uploaded object", () -> {
                     BeforeEach(() -> {
                         logger.info("Uploading test object to bucket " + bucketName);
