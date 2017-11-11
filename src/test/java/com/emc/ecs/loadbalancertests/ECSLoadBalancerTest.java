@@ -1,8 +1,11 @@
 package com.emc.ecs.loadbalancertests;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.emc.ecs.support.CheckAvailabilityChecker;
 import com.emc.ecs.support.URIResourceStore;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
@@ -18,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -44,9 +48,38 @@ public class ECSLoadBalancerTest {
         Describe("ECSLoadBalancer", () -> {
             Context("given a bucket", () -> {
                 BeforeEach(() -> {
-                    Bucket bucket = s3.createBucket(new CreateBucketRequest("lbats-bucket"));
+                    Bucket bucket = s3.createBucket(new CreateBucketRequest(bucketName));
                     assertThat(bucket, is(not(nullValue())));
                 });
+                AfterEach(() -> {
+                    logger.info("Deleting S3 bucket: " + bucketName);
+
+                    try {
+                        logger.info("Removing objects from bucket");
+                        ObjectListing object_listing = s3.listObjects(bucketName);
+                        while (true) {
+                            for (Iterator<?> iterator =
+                                 object_listing.getObjectSummaries().iterator();
+                                 iterator.hasNext();) {
+                                S3ObjectSummary summary = (S3ObjectSummary)iterator.next();
+                                s3.deleteObject(bucketName, summary.getKey());
+                            }
+
+                            // more object_listing to retrieve?
+                            if (object_listing.isTruncated()) {
+                                object_listing = s3.listNextBatchOfObjects(object_listing);
+                            } else {
+                                break;
+                            }
+                        };
+
+                        logger.info("OK, bucket ready to delete!");
+                        s3.deleteBucket(bucketName);
+                    } catch (AmazonServiceException e) {
+                        logger.error("Error deleting bucket " + bucketName, e.getErrorMessage(), e);
+                    }
+                    logger.info("Deleted bucket " + bucketName);
+                    });
                 Context("given an uploaded object", () -> {
                     BeforeEach(() -> {
                         // use store to upload an object
