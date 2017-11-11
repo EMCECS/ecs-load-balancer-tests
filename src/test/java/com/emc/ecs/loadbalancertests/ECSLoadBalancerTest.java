@@ -2,15 +2,11 @@ package com.emc.ecs.loadbalancertests;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.emc.ecs.support.CheckAvailabilityChecker;
 import com.emc.ecs.support.URIResourceStore;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,10 +18,9 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jSpringRunner.class)
@@ -35,36 +30,35 @@ public class ECSLoadBalancerTest {
     private static final Logger logger =LoggerFactory.getLogger(ECSLoadBalancerTest.class);
 
     @Autowired private AmazonS3Client s3;
+    @Autowired private String bucket = "lbats-bucket";
     @Autowired private URIResourceStore store;
     @Autowired private String deployment;
     @Autowired private String instanceId;
 
     private CheckAvailabilityChecker checker;
 
-    private String bucketName = "lbats-bucket";
-
     {
         Describe("ECSLoadBalancer", () -> {
             Context("given a bucket", () -> {
                 BeforeEach(() -> {
-                    logger.info("Creating bucket " + bucketName);
+                    logger.info("Creating bucket " + bucket);
                     try {
-                        Bucket bucket = s3.createBucket(new CreateBucketRequest(bucketName));
+                        s3.createBucket(new CreateBucketRequest(bucket));
                     } catch (AmazonServiceException e) {
-                        logger.error("Error creating bucket " + bucketName, e.getErrorMessage(), e);
+                        logger.error("Error creating bucket " + bucket, e.getErrorMessage(), e);
                     }
                 });
                 AfterEach(() -> {
                     try {
-                        logger.info("Deleting bucket " + bucketName);
-                        s3.deleteBucket(bucketName);
+                        logger.info("Deleting bucket " + bucket);
+                        s3.deleteBucket(bucket);
                     } catch (AmazonServiceException e) {
-                        logger.error("Error deleting bucket " + bucketName, e.getErrorMessage(), e);
+                        logger.error("Error deleting bucket " + bucket, e.getErrorMessage(), e);
                     }
                 });
                 Context("given an uploaded object", () -> {
                     BeforeEach(() -> {
-                        logger.info("Uploading test object to bucket " + bucketName);
+                        logger.info("Uploading test object to bucket " + bucket);
 
                         // use store to upload an object
                         WritableResource r = (WritableResource)store.getResource("test-object");
@@ -81,7 +75,7 @@ public class ECSLoadBalancerTest {
                     AfterEach(() -> {
                         try {
                             logger.info("Deleting test object");
-                            s3.deleteObject(bucketName, "test-object");
+                            s3.deleteObject(bucket, "test-object");
                         } catch (AmazonServiceException e) {
                             logger.error("Error deleting test object", e);
                         }
