@@ -1,15 +1,19 @@
 package com.emc.ecs.support;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
-public class CheckAvailabiltiyThread extends Thread {
+public class CheckAvailabilityChecker extends Thread {
+
+    private static final Logger logger = LoggerFactory.getLogger(CheckAvailabilityChecker.class);
 
     private URIResourceStore store;
     private String key;
     private boolean stop;
     private boolean available = true;
 
-    public CheckAvailabiltiyThread(URIResourceStore store, String key) {
+    public CheckAvailabilityChecker(URIResourceStore store, String key) {
         this.store = store;
         this.key = key;
     }
@@ -28,7 +32,7 @@ public class CheckAvailabiltiyThread extends Thread {
                 available = false;
             }
 
-            System.out.println("available: " + available);
+            logger.info("available: " + available);
 
             try {
                 Thread.sleep(10);

@@ -1,8 +1,9 @@
 package com.emc.ecs.loadbalancertests;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
-import com.emc.ecs.support.CheckAvailabiltiyThread;
+import com.emc.ecs.support.CheckAvailabilityChecker;
 import com.emc.ecs.support.URIResourceStore;
 import com.github.paulcwarren.ginkgo4j.Ginkgo4jSpringRunner;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +21,8 @@ import java.io.OutputStream;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jSpringRunner.class)
@@ -33,7 +36,7 @@ public class ECSLoadBalancerTest {
     @Autowired private String deployment;
     @Autowired private String instanceId;
 
-    private CheckAvailabiltiyThread checker;
+    private CheckAvailabilityChecker checker;
 
     private String bucketName = "lbats-bucket";
 
@@ -41,8 +44,8 @@ public class ECSLoadBalancerTest {
         Describe("ECSLoadBalancer", () -> {
             Context("given a bucket", () -> {
                 BeforeEach(() -> {
-                    s3.createBucket(new CreateBucketRequest(
-                            "lbats-bucket"));
+                    Bucket bucket = s3.createBucket(new CreateBucketRequest("lbats-bucket"));
+                    assertThat(bucket, is(not(nullValue())));
                 });
                 Context("given an uploaded object", () -> {
                     BeforeEach(() -> {
@@ -65,7 +68,7 @@ public class ECSLoadBalancerTest {
                     Context("when we watch that object for availability", () -> {
                         BeforeEach(() -> {
                             // kick off a thread that gets the uploaded object over and over
-                            checker = new CheckAvailabiltiyThread(store, "test-object");
+                            checker = new CheckAvailabilityChecker(store, "test-object");
                             checker.start();
                         });
                         AfterEach(()-> {
