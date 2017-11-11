@@ -41,7 +41,7 @@ public class ECSLoadBalancerTest {
 
     private CheckAvailabilityChecker checker;
 
-    private String bucketName = "lbats-bucket-" + DateTime.now().getMillis();
+    private String bucketName = "lbats-bucket";
 
     {
         Describe("ECSLoadBalancer", () -> {
