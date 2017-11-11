@@ -48,6 +48,7 @@ public class ECSLoadBalancerTest {
         Describe("ECSLoadBalancer", () -> {
             Context("given a bucket", () -> {
                 BeforeEach(() -> {
+                    logger.info("Creating bucket" + bucketName);
                     Bucket bucket = s3.createBucket(new CreateBucketRequest(bucketName));
                     assertThat(bucket, is(not(nullValue())));
                 });
@@ -82,6 +83,8 @@ public class ECSLoadBalancerTest {
                     });
                 Context("given an uploaded object", () -> {
                     BeforeEach(() -> {
+                        logger.info("Uploading test object to bucket " + bucketName);
+
                         // use store to upload an object
                         WritableResource r = (WritableResource)store.getResource("test-object");
                         InputStream is = this.getClass().getResourceAsStream("/test-object");
@@ -101,6 +104,8 @@ public class ECSLoadBalancerTest {
                     Context("when we watch that object for availability", () -> {
                         BeforeEach(() -> {
                             // kick off a thread that gets the uploaded object over and over
+                            logger.info("Starting availability checker");
+
                             checker = new CheckAvailabilityChecker(store, "test-object");
                             checker.start();
                         });
@@ -109,6 +114,7 @@ public class ECSLoadBalancerTest {
                         });
                         Context("when we bosh restart on of the ECS node VMs", () -> {
                             BeforeEach(() -> {
+                                logger.info("Restarting ecs nodes");
                                 // perform a BOSH restart on one of the nodes
 
 //                            Process process = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId).start();
