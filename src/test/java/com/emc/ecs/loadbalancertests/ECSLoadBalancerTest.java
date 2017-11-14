@@ -23,6 +23,8 @@ import java.io.OutputStream;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Ginkgo4jSpringRunner.class)
@@ -113,9 +115,18 @@ public class ECSLoadBalancerTest {
                                 }
 
                                 logger.info("ECS nodes restarted");
+
+                                // Wait for a while to ensure that all the nodes came back up
+                                Thread.sleep(5000);
                             });
                             It("should be remain available throughout", () -> {
-                                Resource r = store.getResource("test-object");
+                                Resource r = null;
+                                try {
+                                    r = store.getResource("test-object");
+                                } catch (Exception e) {
+                                    logger.error("Unable to fetch resource", e);
+                                }
+                                assertThat(r, is(not(nullValue())));
                                 assertThat(r.exists(), is(true));
                                 assertThat(IOUtils.contentEquals(r.getInputStream(), this.getClass().getResourceAsStream("/test-object")), is(true));
                                 assertThat(checker.isAvailable(), is(true));
