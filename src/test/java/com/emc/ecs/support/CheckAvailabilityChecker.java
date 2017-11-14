@@ -35,7 +35,7 @@ public class CheckAvailabilityChecker extends Thread {
             logger.info("available: " + available);
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
