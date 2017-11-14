@@ -114,12 +114,14 @@ public class ECSLoadBalancerTest {
                                     logger.info(line);
                                 }
 
-                                logger.info("ECS nodes restarted");
-
                                 // Wait for a while to ensure that all the nodes came back up
                                 Thread.sleep(5000);
+
+                                logger.info("ECS nodes restarted");
                             });
                             It("should be remain available throughout", () -> {
+                                logger.info("Performing final availability checks");
+
                                 Resource r = null;
                                 try {
                                     r = store.getResource("test-object");
