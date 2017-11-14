@@ -95,12 +95,12 @@ public class ECSLoadBalancerTest {
                         });
                         Context("when we bosh restart on of the ECS node VMs", () -> {
                             BeforeEach(() -> {
-                                logger.info("Restarting ecs nodes");
+                                logger.info("Restarting ECS nodes");
                                 // perform a BOSH restart on one of the nodes
 
-                                ProcessBuilder pb = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId);
+                                ProcessBuilder pb = new ProcessBuilder("bosh", "-n", "-d", deployment, "restart", instanceId);
                                 pb.redirectErrorStream(true);
-                                logger.info("Executing command `bosh -d " + deployment+ " restart " + instanceId + "`");
+                                logger.info("Executing command `bosh -n -d " + deployment+ " restart " + instanceId + "`");
 
                                 Process process = pb.start();
                                 InputStream is = process.getInputStream();
@@ -111,6 +111,8 @@ public class ECSLoadBalancerTest {
                                 while ((line = br.readLine()) != null) {
                                     logger.info(line);
                                 }
+
+                                logger.info("ECS nodes restarted");
                             });
                             It("should be remain available throughout", () -> {
                                 Resource r = store.getResource("test-object");
