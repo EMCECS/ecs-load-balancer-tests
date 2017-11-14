@@ -98,7 +98,11 @@ public class ECSLoadBalancerTest {
                                 logger.info("Restarting ecs nodes");
                                 // perform a BOSH restart on one of the nodes
 
-                                Process process = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId).start();
+                                ProcessBuilder pb = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId)
+                                pb.redirectErrorStream(true);
+                                logger.info("Executing command `bosh -d " + deployment+ " restart " + instanceId + "`");
+
+                                Process process = pb.start();
                                 InputStream is = process.getInputStream();
                                 InputStreamReader isr = new InputStreamReader(is);
                                 BufferedReader br = new BufferedReader(isr);
