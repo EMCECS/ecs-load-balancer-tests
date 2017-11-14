@@ -16,7 +16,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
@@ -96,18 +98,15 @@ public class ECSLoadBalancerTest {
                                 logger.info("Restarting ecs nodes");
                                 // perform a BOSH restart on one of the nodes
 
-//                            Process process = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId).start();
-//                            InputStream is = process.getInputStream();
-//                            InputStreamReader isr = new InputStreamReader(is);
-//                            BufferedReader br = new BufferedReader(isr);
-//                            String line;
-//
-//                            while ((line = br.readLine()) != null) {
-//                                System.out.println(line);
-//                            }
+                                Process process = new ProcessBuilder("bosh","-d", deployment, "restart", instanceId).start();
+                                InputStream is = process.getInputStream();
+                                InputStreamReader isr = new InputStreamReader(is);
+                                BufferedReader br = new BufferedReader(isr);
+                                String line;
 
-                                Thread.sleep(20000);
-
+                                while ((line = br.readLine()) != null) {
+                                    logger.info(line);
+                                }
                             });
                             It("should be remain available throughout", () -> {
                                 Resource r = store.getResource("test-object");
