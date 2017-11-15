@@ -12,6 +12,7 @@ public class CheckAvailabilityChecker extends Thread {
     private String key;
     private boolean stop;
     private boolean available = true;
+    private boolean downtime = false;
 
     public CheckAvailabilityChecker(URIResourceStore store, String key) {
         this.store = store;
@@ -27,9 +28,13 @@ public class CheckAvailabilityChecker extends Thread {
                 Resource r = store.getResource("test-object");
                 if (!r.exists()) {
                     available = false;
+                    downtime =true;
+                } else {
+                    available = true;
                 }
             } catch (Exception e) {
                 available = false;
+                downtime = true;
             }
 
             logger.info("available: " + available);
@@ -48,5 +53,9 @@ public class CheckAvailabilityChecker extends Thread {
 
     public boolean isAvailable() {
         return available;
+    }
+
+    public boolean hasDowntime() {
+        return downtime;
     }
 }

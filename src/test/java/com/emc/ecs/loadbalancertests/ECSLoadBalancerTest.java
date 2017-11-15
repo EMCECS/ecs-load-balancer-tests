@@ -120,8 +120,6 @@ public class ECSLoadBalancerTest {
                                 logger.info("ECS nodes restarted");
                             });
                             It("should be remain available throughout", () -> {
-                                logger.info("Performing final availability checks");
-
                                 Resource r = null;
                                 try {
                                     r = store.getResource("test-object");
@@ -132,6 +130,7 @@ public class ECSLoadBalancerTest {
                                 assertThat(r.exists(), is(true));
                                 assertThat(IOUtils.contentEquals(r.getInputStream(), this.getClass().getResourceAsStream("/test-object")), is(true));
                                 assertThat(checker.isAvailable(), is(true));
+                                assertThat(checker.hasDowntime(), is(false));
                             });
                         });
                     });
