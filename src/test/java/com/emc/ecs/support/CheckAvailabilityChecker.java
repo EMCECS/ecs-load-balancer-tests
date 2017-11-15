@@ -33,6 +33,7 @@ public class CheckAvailabilityChecker extends Thread {
                     available = true;
                 }
             } catch (Exception e) {
+                logger.info("Error checking availability: ", e.getMessage());
                 available = false;
                 downtime = true;
             }
